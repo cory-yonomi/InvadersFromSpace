@@ -1,4 +1,5 @@
 # SEI-Project-1
+OMICRON - Lrr & Ndnd
 
 ## Elevator Pitch
 A Space Invaders clone in which one player battles the computer to destroy all the alien invaders before they land and destroy the planet! The player will have barriers to hide behind, shoot through and the ability to move left to right, as the aliens move back and forth and drop closer to the planet. Score will be kept, each alien hit providing points with more awarded for aliens higher up in the formation.
