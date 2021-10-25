@@ -1,12 +1,9 @@
 // we need to get our canvas, save it to a variable, so we can access it(and utilize it)
 const game = document.getElementById('canvas')
 // another thing we'll do here, is get the movement tracker
-const moveDisplay = document.getElementById('movement')
+const aliensRemaining = document.getElementById('aliensRemaining')
 
-//define movement
-    //A - left
-    //D - right
-    //W - shoot
+
 //define player class
     //life = 3
     //size
@@ -28,10 +25,6 @@ const moveDisplay = document.getElementById('movement')
 //define player movement function
 //define alien movement function
 //define collision class
-
-
-
-
 //define game loop
     //game starts
     //countdown
@@ -61,7 +54,7 @@ const moveDisplay = document.getElementById('movement')
 // we do this with the built in canvas method, getContext
 const ctx = game.getContext('2d')
 
-function Character(x, y, color, width, height, life) {
+function Player(x, y, color, width, height, life) {
     this.x = x
     this.y = y
     this.color = color
@@ -69,38 +62,129 @@ function Character(x, y, color, width, height, life) {
     this.height = height
     this.life = life
     this.alive = true
-    // then we declare the same type of render method
+    this.render = function () {
+        ctx.fillStyle = this.color
+        ctx.fillRect(this.x, this.y, this.width, this.height)
+    }
+    this.move = function (key) {
+        switch (key) {
+            // case ('w'):
+            //     shoot
+            //     shootProjectile()
+            //     break
+            case ('a'):
+                // moves left
+                player.x -= 5
+                break
+            // case ('s'):
+            //     move down
+            //     useSpecial()
+            //     break
+            case ('d'):
+                // move right
+                player.x += 5
+                break
+        }
+    }
+}
+
+function Alien(x, y, color, width, height, life) {
+    this.x = x
+    this.y = y
+    this.color = color
+    this.width = width
+    this.height = height
+    this.life = life
+    this.alive = true
+
+    this.render = function () {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 3, 0, 2 * Math.PI);
+        ctx.fillStyle = color
+        ctx.fill()
+    }
+
+    this.move = function () {
+        setInterval( () => {
+            if (alienFleet[0].x <= 160) {
+                for (i = 0; i < alienFleet.length; i++) {
+                    alienFleet[i].x++
+                }
+            }
+            }, 4000)
+         }
+    }
+
+
+
+function Missile(x, y, width, height) {
+    this.x = x
+    this.y = y
+    this.color = white
+    this.width = width
+    this.height = height
     this.render = function () {
         ctx.fillStyle = this.color
         ctx.fillRect(this.x, this.y, this.width, this.height)
     }
 }
+//define movement
+// let movementHandler = (e) => {
+    
+// }
 
-let player = new Character(150, 140, 'cyan', 10, 5)
-let alien = undefined
+let player = new Player(150, 140, 'cyan', 10, 5)
+// let alien = undefined
 
 
-player.render()
+// player.render()
 // alien.render()
 
 
 //render 40 aliens
+let alien
 let alienFleet = []
 const createAlienSquad = (y, color, life) => {
     for (i = 1; i < 11; i++) {
-        let x = (i * 12) + 80
-        alien = new Character(x, y, color, 9, 7, life)
-        alienFleet.push(alien.life)
-        alien.render()
+        let x = (i * 8) + 95
+        alien = new Alien(x, y, color, 9, 7, life)
+        alienFleet.push(alien)
     }
 }
 
 const createFleet = () => {
     createAlienSquad(50, 'purple', 1)
-    createAlienSquad(40, 'purple', 1)
-    createAlienSquad(30, 'yellow', 2)
-    createAlienSquad(20, 'magenta', 3)
+    createAlienSquad(42, 'purple', 1)
+    createAlienSquad(34, 'yellow', 2)
+    createAlienSquad(26, 'magenta', 3)
 }
 
-createFleet()
 console.log(alienFleet)
+
+// we're going to set up our game loop, to be used in our timing function
+// set up gameLoop function, declaring what happens when our game is running
+
+const gameLoop = () => {
+    // clear the canvas
+    ctx.clearRect(0, 0, game.width, game.height)
+    // display relevant game state(player movement) in our movement display
+    // render our player
+    player.render()
+    if (alienFleet.length <= 39) {
+        createFleet()
+    } else {
+        for (i = 0; i < alienFleet.length; i++){
+            alienFleet[i].render()
+        }
+    }
+    aliensRemaining.innerText = alienFleet.length
+    alien.move()
+}
+
+// we also need to declare a function that will stop our animation loop
+let stopGameLoop = () => {clearInterval(gameInterval)}
+
+// add event listener for player movement
+document.addEventListener('keydown', (event) => player.move(event.key))
+// the timing function will determine how and when our game animates
+let gameInterval = setInterval(gameLoop, 70)
