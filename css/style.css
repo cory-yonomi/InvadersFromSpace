@@ -11,17 +11,22 @@ html,body {
     background-size: cover;
     background-repeat: space;
   }
+
+  h2 {
+      font-size: 1.25em;
+  }
   
   h1, h2 {
     font-family: 'Press Start 2P', monospace;
     /* font-family: monospace; */
-    color: goldenrod;
+    color: rgb(112, 218, 51);
   }
   
   canvas {
-    /* background-image: url('../img/stone.png'); */
-    /* background-repeat: repeat; */
-    background-color: #222;
+    background-image: url('https://apod.nasa.gov/apod/image/2110/Helix_Oxygen_crop2_1024.jpg');
+    background-position: center;
+    background-size: cover;
+    background-color: rgb(0, 0, 0);
     width: 100%;
     height: 100;
   }
@@ -29,11 +34,11 @@ html,body {
   #container {
   max-width: 70em;
   /* height: 70vh; */
-  background-color: rgb(111, 12, 32);
+  background-color: rgb(156, 2, 110);
   margin: 0 auto;
-  padding: 1em;
+  padding: .5em;
   display: grid;
-  grid-gap: 1em;
+  grid-gap: .5em;
   grid-template-rows: .5fr 2fr .25fr;
   grid-template-columns: .5fr 1fr .5fr;
   grid-template-areas: "title title title"
@@ -73,6 +78,9 @@ html,body {
       /* background-color: #222; */
   }
 
-  #aliensRemaining {
-      padding-top: 10px;
+  #btm-right h2 {
+      padding-top: 20px;
+  }
+  span {
+      line-height: 2em;
   }
