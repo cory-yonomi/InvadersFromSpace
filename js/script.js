@@ -68,10 +68,10 @@ function Player(x, y, color, width, height, life) {
     }
     this.move = function (key) {
         switch (key) {
-            // case ('w'):
+            case (' '):
             //     shoot
-            //     shootProjectile()
-            //     break
+                shootMissile()
+                break
             case ('a'):
                 // moves left
                 player.x -= 5
@@ -120,19 +120,27 @@ function Alien(x, y, color, width, height, life) {
 function Missile(x, y, width, height) {
     this.x = x
     this.y = y
-    this.color = white
+    this.color = 'white'
     this.width = width
     this.height = height
     this.render = function () {
         ctx.fillStyle = this.color
         ctx.fillRect(this.x, this.y, this.width, this.height)
+        ctx.fill()
+    }
+    this.update = function () {
+        this.y--
     }
 }
-//define movement
-// let movementHandler = (e) => {
+let missile
+let missiles = []
+const shootMissile = () => {
+    console.log(player.x)
+    console.log(missiles)
+    missile = new Missile(player.x + 4.5, player.y, 1, 5)
+    missiles.push(missile)
     
-// }
-
+}
 let player = new Player(150, 140, 'cyan', 10, 5)
 // let alien = undefined
 
@@ -164,7 +172,8 @@ console.log(alienFleet)
 // we're going to set up our game loop, to be used in our timing function
 // set up gameLoop function, declaring what happens when our game is running
 
-const gameLoop = () => {
+const animate = () => {
+    requestAnimationFrame(animate)
     // clear the canvas
     ctx.clearRect(0, 0, game.width, game.height)
     // display relevant game state(player movement) in our movement display
@@ -179,6 +188,10 @@ const gameLoop = () => {
     }
     aliensRemaining.innerText = alienFleet.length
     alien.move()
+    missiles.forEach((missile) => {
+        missile.render()
+        missile.update()
+    })
 }
 
 // we also need to declare a function that will stop our animation loop
@@ -187,4 +200,5 @@ let stopGameLoop = () => {clearInterval(gameInterval)}
 // add event listener for player movement
 document.addEventListener('keydown', (event) => player.move(event.key))
 // the timing function will determine how and when our game animates
-let gameInterval = setInterval(gameLoop, 70)
+// let gameInterval = setInterval(gameLoop, 70)
+animate()
