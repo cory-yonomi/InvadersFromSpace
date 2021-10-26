@@ -60,11 +60,15 @@ function Player(x, y, color, width, height, life) {
     this.height = height
     this.life = life
     this.alive = true
+    this.points = 0
     this.win = false
+
     this.render = function () {
+        ctx.beginPath()
         ctx.fillStyle = this.color
         ctx.fillRect(this.x, this.y, this.width, this.height)
     }
+
     this.move = function (key) {
         switch (key) {
             case (' '):
@@ -73,7 +77,7 @@ function Player(x, y, color, width, height, life) {
                 break
             case ('a' || 'ArrowLeft'):
                 // moves left
-                if (player.x > 30) { player.x -= 3 }
+                if (player.x > 80) { player.x -= 3 }
                 break
             // case ('s'):
             //     move down
@@ -89,7 +93,7 @@ function Player(x, y, color, width, height, life) {
 
 let player = new Player(150, 140, 'cyan', 10, 5)
 
-function Alien(x, y, color, width, height, life) {
+function Alien(x, y, color, width, height, life, points) {
     this.x = x
     this.y = y
     this.color = color
@@ -97,41 +101,38 @@ function Alien(x, y, color, width, height, life) {
     this.height = height
     this.life = life
     this.alive = true
+    this.points = points
 
     this.render = function () {
         ctx.beginPath();
-        ctx.arc(this.x, this.y, 3, 0, 2 * Math.PI);
+        ctx.arc(this.x, this.y, 4  , 0, 2 * Math.PI);
         ctx.fillStyle = color
         ctx.fill()
     }
 
     this.move = function () {
-        setInterval( () => {
-            if (alienFleet[0].x <= 160) {
-                for (i = 0; i < alienFleet.length; i++) {
-                    alienFleet[i].x++
-                }
+        if (alienFleet[0].x <= 130) {
+                alienFleet[i].x++
             }
-        }, 4000)
     }
 }
 
 let alien
 let alienFleet = []
 
-const createAlienSquad = (y, color, life) => {
+const createAlienSquad = (y, color, life, points) => {
     for (i = 1; i < 11; i++) {
-        let x = (i * 8) + 95
-        alien = new Alien(x, y, color, 9, 7, life)
+        let x = (i * 10) + 70
+        alien = new Alien(x, y, color, 9, 7, life, points)
         alienFleet.push(alien)
     }
 }
 
 const createFleet = () => {
-    createAlienSquad(50, 'purple', 1)
-    createAlienSquad(42, 'purple', 1)
-    createAlienSquad(34, 'yellow', 2)
-    createAlienSquad(26, 'magenta', 3)
+    createAlienSquad(35, 'purple', 1, 10)
+    createAlienSquad(25, 'purple', 1, 10)
+    createAlienSquad(15, 'yellow', 2, 25)
+    createAlienSquad(5, 'magenta', 3, 50)
 }
 
 function Missile(x, y, width, height) {
@@ -140,11 +141,14 @@ function Missile(x, y, width, height) {
     this.color = 'white'
     this.width = width
     this.height = height
+
     this.render = function () {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 1, 0, 2 * Math.PI);
         ctx.fillStyle = this.color
-        ctx.fillRect(this.x, this.y, this.width, this.height)
         ctx.fill()
     }
+
     this.update = function () {
         this.y = this.y - 3
     }
@@ -157,7 +161,7 @@ const shootMissile = () => {
     console.log(player.x)
     console.log(missiles)
     console.log(alienFleet)
-    missile = new Missile(player.x + 4.5, player.y, 1, 5)
+    missile = new Missile(player.x + 4.5, player.y, 2, 5)
     missiles.push(missile)
     
 }
@@ -165,49 +169,66 @@ const shootMissile = () => {
 const detectMissileHit = () => {
     missiles.forEach((missile, index) => {
         alienFleet.forEach((alien, fleetIndex) => {
+            //missile hits
             if (
                 missile.x < alien.x + alien.width &&
                 missile.x + missile.width > alien.x &&
                 missile.y < alien.y + alien.height &&
                 missile.y + missile.height > alien.y
             ) {
-                alienFleet.splice(fleetIndex, 1)
                 missiles.splice(index, 1)
+                alien.life = alien.life - 1
+                console.log('alien life:\n', alien.life)
+                //check for kill and points
+                if (alien.life === 0) {
+                    alienFleet.splice(fleetIndex, 1)
+                    player.points = player.points + alien.points
+                    console.log('player points:\n', player.points)
+                    pointTotal.innerText = String(player.points).padStart(4, '0')
+                }
+            //missile edge detection
             } else if (missile.y <= 0) {
                 missiles.splice(index, 1)
             }
         })
     })
 }
-// we're going to set up our game loop, to be used in our timing function
-// set up gameLoop function, declaring what happens when our game is running
 
+const displayWin = () => {
+    document.getElementById('winDiv').classList.remove('hidden')
+}
+
+// set up gameLoop function, declaring what happens when our game is running
+let animationId
 const animate = () => {
-    requestAnimationFrame(animate)
+    animationId = requestAnimationFrame(animate)
     // clear the canvas
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
     ctx.clearRect(0, 0, game.width, game.height)
-    // display relevant game state(player movement) in our movement display
     // render our player
     player.render()
-    if (alienFleet.length == 0 && !player.win) {
+    if (alienFleet.length == 0 && player.points <= 0) {
         createFleet()
+    } else if (alienFleet.length == 0 && player.points > 1) {
+        player.win = true
+        console.log('player win:\n', player.win)
+        displayWin()
+        cancelAnimationFrame(animationId)
     } else {
         for (i = 0; i < alienFleet.length; i++){
             alienFleet[i].render()
         }
     }
     aliensRemaining.innerText = alienFleet.length
-    alien.move()
+    // alien.move()
     missiles.forEach((missile) => {
         missile.render()
         missile.update()
     })
     detectMissileHit()
 }
-
 // we also need to declare a function that will stop our animation loop
 let stopGameLoop = () => {clearInterval(gameInterval)}
-
 // add event listener for player movement
 document.addEventListener('keydown', (event) => player.move(event.key))
 // the timing function will determine how and when our game animates

@@ -16,21 +16,28 @@ html,body {
       font-size: 1.25em;
   }
   
-  h1, h2 {
+  h1, h2, h3, button {
     font-family: 'Press Start 2P', monospace;
     /* font-family: monospace; */
     color: rgb(112, 218, 51);
   }
   
   canvas {
-    background-image: url('https://apod.nasa.gov/apod/image/2110/Helix_Oxygen_crop2_1024.jpg');
-    background-position: center;
-    background-size: cover;
+    background-image: url('https://cdnb.artstation.com/p/assets/images/images/020/527/227/large/pixel-island-futurama-01.jpg?1568123402');
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-size: 55%;
     background-color: rgb(0, 0, 0);
     width: 100%;
     height: 100;
   }
   
+  button {
+      background-color: black;
+      padding: 10px;
+      border: 2px solid rgb(112, 218, 51);
+  }
+
   #container {
   max-width: 70em;
   /* height: 70vh; */
@@ -60,9 +67,24 @@ html,body {
   
   main {
     grid-area: game;
+    position: relative;
   }
   
-  
+  .hidden {
+    visibility: hidden;
+  }
+
+  #winDiv {
+      padding: 20px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      background: black;
+      border: 4px solid rgb(112, 218, 51);
+  }
+
   #btm-left {
     grid-area: btm-left;
     /* background-color: #222; */
