@@ -60,6 +60,7 @@ function Player(x, y, color, width, height, life) {
     this.height = height
     this.life = life
     this.alive = true
+    this.win = false
     this.render = function () {
         ctx.fillStyle = this.color
         ctx.fillRect(this.x, this.y, this.width, this.height)
@@ -72,7 +73,7 @@ function Player(x, y, color, width, height, life) {
                 break
             case ('a' || 'ArrowLeft'):
                 // moves left
-                player.x -= 5
+                if (player.x > 30) { player.x -= 3 }
                 break
             // case ('s'):
             //     move down
@@ -80,11 +81,13 @@ function Player(x, y, color, width, height, life) {
             //     break
             case ('d' || 'ArrowRight'):
                 // move right
-                player.x += 5
+                if (player.x < 215){ player.x += 3 } 
                 break
         }
     }
 }
+
+let player = new Player(150, 140, 'cyan', 10, 5)
 
 function Alien(x, y, color, width, height, life) {
     this.x = x
@@ -113,19 +116,22 @@ function Alien(x, y, color, width, height, life) {
     }
 }
 
-const detectAlienHit = () => {
-    missiles.forEach((missile) => {
-        alienFleet.forEach((alien) => {
-            if (
-                missile.x < alien.x + alien.width &&
-                missile.x + missile.width > alien.x &&
-                missile.y < alien.y + alien.height &&
-                missile.y + missile.height > alien.y
-            ) {
-                console.log('Hit!')
-            }
-        })
-    })
+let alien
+let alienFleet = []
+
+const createAlienSquad = (y, color, life) => {
+    for (i = 1; i < 11; i++) {
+        let x = (i * 8) + 95
+        alien = new Alien(x, y, color, 9, 7, life)
+        alienFleet.push(alien)
+    }
+}
+
+const createFleet = () => {
+    createAlienSquad(50, 'purple', 1)
+    createAlienSquad(42, 'purple', 1)
+    createAlienSquad(34, 'yellow', 2)
+    createAlienSquad(26, 'magenta', 3)
 }
 
 function Missile(x, y, width, height) {
@@ -143,8 +149,10 @@ function Missile(x, y, width, height) {
         this.y = this.y - 3
     }
 }
+
 let missile
 let missiles = []
+
 const shootMissile = () => {
     console.log(player.x)
     console.log(missiles)
@@ -153,25 +161,24 @@ const shootMissile = () => {
     missiles.push(missile)
     
 }
-let player = new Player(150, 140, 'cyan', 10, 5)
 
-let alien
-let alienFleet = []
-const createAlienSquad = (y, color, life) => {
-    for (i = 1; i < 11; i++) {
-        let x = (i * 8) + 95
-        alien = new Alien(x, y, color, 9, 7, life)
-        alienFleet.push(alien)
-    }
+const detectMissileHit = () => {
+    missiles.forEach((missile, index) => {
+        alienFleet.forEach((alien, fleetIndex) => {
+            if (
+                missile.x < alien.x + alien.width &&
+                missile.x + missile.width > alien.x &&
+                missile.y < alien.y + alien.height &&
+                missile.y + missile.height > alien.y
+            ) {
+                alienFleet.splice(fleetIndex, 1)
+                missiles.splice(index, 1)
+            } else if (missile.y <= 0) {
+                missiles.splice(index, 1)
+            }
+        })
+    })
 }
-
-const createFleet = () => {
-    createAlienSquad(50, 'purple', 1)
-    createAlienSquad(42, 'purple', 1)
-    createAlienSquad(34, 'yellow', 2)
-    createAlienSquad(26, 'magenta', 3)
-}
-
 // we're going to set up our game loop, to be used in our timing function
 // set up gameLoop function, declaring what happens when our game is running
 
@@ -182,7 +189,7 @@ const animate = () => {
     // display relevant game state(player movement) in our movement display
     // render our player
     player.render()
-    if (alienFleet.length <= 39) {
+    if (alienFleet.length == 0 && !player.win) {
         createFleet()
     } else {
         for (i = 0; i < alienFleet.length; i++){
@@ -195,7 +202,7 @@ const animate = () => {
         missile.render()
         missile.update()
     })
-    detectAlienHit()
+    detectMissileHit()
 }
 
 // we also need to declare a function that will stop our animation loop
