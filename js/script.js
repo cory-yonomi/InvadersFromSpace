@@ -1,9 +1,3 @@
-// we need to get our canvas, save it to a variable, so we can access it(and utilize it)
-const game = document.getElementById('canvas')
-// another thing we'll do here, is get the movement tracker
-const aliensRemaining = document.getElementById('aliensRemaining')
-
-
 //define player class
     //life = 3
     //size
@@ -52,6 +46,10 @@ const aliensRemaining = document.getElementById('aliensRemaining')
 
 // now we need to get the game's context so we can add to it, draw on it, create animations etc
 // we do this with the built in canvas method, getContext
+// we need to get our canvas, save it to a variable, so we can access it(and utilize it)
+const game = document.getElementById('canvas')
+// another thing we'll do here, is get the movement tracker
+const aliensRemaining = document.getElementById('aliensRemaining')
 const ctx = game.getContext('2d')
 
 function Player(x, y, color, width, height, life) {
@@ -72,7 +70,7 @@ function Player(x, y, color, width, height, life) {
             //     shoot
                 shootMissile()
                 break
-            case ('a'):
+            case ('a' || 'ArrowLeft'):
                 // moves left
                 player.x -= 5
                 break
@@ -80,7 +78,7 @@ function Player(x, y, color, width, height, life) {
             //     move down
             //     useSpecial()
             //     break
-            case ('d'):
+            case ('d' || 'ArrowRight'):
                 // move right
                 player.x += 5
                 break
@@ -111,11 +109,24 @@ function Alien(x, y, color, width, height, life) {
                     alienFleet[i].x++
                 }
             }
-            }, 4000)
-         }
+        }, 4000)
     }
+}
 
-
+const detectAlienHit = () => {
+    missiles.forEach((missile) => {
+        alienFleet.forEach((alien) => {
+            if (
+                missile.x < alien.x + alien.width &&
+                missile.x + missile.width > alien.x &&
+                missile.y < alien.y + alien.height &&
+                missile.y + missile.height > alien.y
+            ) {
+                console.log('Hit!')
+            }
+        })
+    })
+}
 
 function Missile(x, y, width, height) {
     this.x = x
@@ -129,7 +140,7 @@ function Missile(x, y, width, height) {
         ctx.fill()
     }
     this.update = function () {
-        this.y--
+        this.y = this.y - 3
     }
 }
 let missile
@@ -137,19 +148,13 @@ let missiles = []
 const shootMissile = () => {
     console.log(player.x)
     console.log(missiles)
+    console.log(alienFleet)
     missile = new Missile(player.x + 4.5, player.y, 1, 5)
     missiles.push(missile)
     
 }
 let player = new Player(150, 140, 'cyan', 10, 5)
-// let alien = undefined
 
-
-// player.render()
-// alien.render()
-
-
-//render 40 aliens
 let alien
 let alienFleet = []
 const createAlienSquad = (y, color, life) => {
@@ -166,8 +171,6 @@ const createFleet = () => {
     createAlienSquad(34, 'yellow', 2)
     createAlienSquad(26, 'magenta', 3)
 }
-
-console.log(alienFleet)
 
 // we're going to set up our game loop, to be used in our timing function
 // set up gameLoop function, declaring what happens when our game is running
@@ -192,6 +195,7 @@ const animate = () => {
         missile.render()
         missile.update()
     })
+    detectAlienHit()
 }
 
 // we also need to declare a function that will stop our animation loop
