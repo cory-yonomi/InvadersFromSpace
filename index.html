@@ -11,19 +11,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div id="winDiv" class="hidden">
+        <h2>Victory!</h2>
+        <h3>You defeated the invaders!</h3>
+        <p>SPACEBAR to Play Again</p>
+    </div>
+    <!-- <div id="startDisplay">
+        <img src="" />
+        <h2>The Omicronians are coming to take over Earth! Destroy them and save humanity!</h2>
+        <h3>Press SPACEBAR to start</h3>
+        <p>A: Left | D: Right | SPACE: Shoot</p>
+    </div> -->
     <div id="container">
         <aside id="title"><h1>O M I C R O N</h1></aside>
         <main>
             <canvas id="canvas"><!-- play it, a game --></canvas>
         </main>
         <aside id="btm-left"><h2 id="pointTotal">0000</h2></aside>
-        <aside id="btm-center"><h2>A:Left D:Right W:Shoot</h2></aside>
+        <aside id="btm-center"><h2>A:Left D:Right SPACEBAR:Shoot</h2></aside>
         <aside id="btm-right"><h2>Aliens:<br><span id="aliensRemaining"></span></h2></aside>
-        <div id="winDiv" class="hidden">
-            <h2>Victory!</h2>
-            <h3>You defeated the invaders!</h3>
-            <button>Play Again</button>
-        </div>
       </div>
     <script src="js/script.js"></script>
 </body>

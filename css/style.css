@@ -14,9 +14,10 @@ html,body {
 
   h2 {
       font-size: 1.25em;
+      line-height: 2em ;
   }
   
-  h1, h2, h3, button {
+  h1, h2, h3, p {
     font-family: 'Press Start 2P', monospace;
     /* font-family: monospace; */
     color: rgb(112, 218, 51);
@@ -72,6 +73,13 @@ html,body {
   
   .hidden {
     visibility: hidden;
+  }
+
+  #startDisplay {
+      position: fixed;
+      width: 50%;
+      top: 20%;
+      left: 25%;
   }
 
   #winDiv {

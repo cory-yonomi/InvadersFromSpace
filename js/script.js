@@ -46,12 +46,13 @@
 
 // now we need to get the game's context so we can add to it, draw on it, create animations etc
 // we do this with the built in canvas method, getContext
-// we need to get our canvas, save it to a variable, so we can access it(and utilize it)
+
+//make canvas accessible
 const game = document.getElementById('canvas')
-// another thing we'll do here, is get the movement tracker
-const aliensRemaining = document.getElementById('aliensRemaining')
+//context variable
 const ctx = game.getContext('2d')
 
+//define player object
 function Player(x, y, color, width, height, life) {
     this.x = x
     this.y = y
@@ -62,13 +63,13 @@ function Player(x, y, color, width, height, life) {
     this.alive = true
     this.points = 0
     this.win = false
-
+    //how to draw player
     this.render = function () {
         ctx.beginPath()
         ctx.fillStyle = this.color
         ctx.fillRect(this.x, this.y, this.width, this.height)
     }
-
+    //player moves
     this.move = function (key) {
         switch (key) {
             case (' '):
@@ -90,9 +91,9 @@ function Player(x, y, color, width, height, life) {
         }
     }
 }
-
+//create player
 let player = new Player(150, 140, 'cyan', 10, 5)
-
+//define alien object
 function Alien(x, y, color, width, height, life, points) {
     this.x = x
     this.y = y
@@ -102,24 +103,46 @@ function Alien(x, y, color, width, height, life, points) {
     this.life = life
     this.alive = true
     this.points = points
-
+    this.dx = .12
     this.render = function () {
         ctx.beginPath();
         ctx.arc(this.x, this.y, 4  , 0, 2 * Math.PI);
         ctx.fillStyle = color
         ctx.fill()
     }
-
+    //move alien fleet
     this.move = function () {
-        if (alienFleet[0].x <= 130) {
-                alienFleet[i].x++
+        let direction = true
+        if (alienFleet[0].x <= 130 - this.dx && direction) {
+            for (i = 0; i < alienFleet.length; i++) {
+                alienFleet[i].x += this.dx
             }
+        } else if (alienFleet[0].x >= 130 && direction) {
+            for (i = 0; i < alienFleet.length; i++) {
+                alienFleet[i].y += 5
+                alienFleet[i].dx += .15
+                direction = false
+            }
+        } else if (alienFleet[0].x >= 80 - this.dx && !direction) {
+            for (i = 0; i < alienFleet.length; i++) {
+                alienFleet[i].x -= this.dx
+            }
+        } else if (alienFleet[0].x >= 80 && !direction) {
+            for (i = 0; i < alienFleet.length; i++) {
+                alienFleet[i].y += 5
+                alienFleet[i].dx += .15
+                direction = false
+            }
+        }
     }
 }
 
+//declare empty variables for alien and fleet so they're globally accesible
 let alien
 let alienFleet = []
-
+//make alien counter accesible
+const aliensRemaining = document.getElementById('aliensRemaining')
+//function for creating a row of aliens
 const createAlienSquad = (y, color, life, points) => {
     for (i = 1; i < 11; i++) {
         let x = (i * 10) + 70
@@ -127,14 +150,14 @@ const createAlienSquad = (y, color, life, points) => {
         alienFleet.push(alien)
     }
 }
-
+//create 40 aliens
 const createFleet = () => {
     createAlienSquad(35, 'purple', 1, 10)
     createAlienSquad(25, 'purple', 1, 10)
     createAlienSquad(15, 'yellow', 2, 25)
     createAlienSquad(5, 'magenta', 3, 50)
 }
-
+//define missile object
 function Missile(x, y, width, height) {
     this.x = x
     this.y = y
@@ -153,20 +176,17 @@ function Missile(x, y, width, height) {
         this.y = this.y - 3
     }
 }
-
+//make individual missiles and every one on screen accessible globally
 let missile
 let missiles = []
-
+//create a missile and push it to the array
 const shootMissile = () => {
-    console.log(player.x)
-    console.log(missiles)
-    console.log(alienFleet)
     missile = new Missile(player.x + 4.5, player.y, 2, 5)
-    missiles.push(missile)
-    
+    missiles.push(missile) 
 }
-
+//missile hit and edge detection logic
 const detectMissileHit = () => {
+    //identify which alien is hit
     missiles.forEach((missile, index) => {
         alienFleet.forEach((alien, fleetIndex) => {
             //missile hits
@@ -194,11 +214,40 @@ const detectMissileHit = () => {
     })
 }
 
+// function Barrier(x, y, width, height) {
+//     this.x = x
+//     this.y = y
+//     this.width = width
+//     this.height = height
+//     this.color = 'lime'
+//     this.life = 3
+//     this.render = function () {
+//         ctx.beginPath()
+//         ctx.fillStyle = this.color
+//         ctx.fillRect(this.x, this.y, this.width, this.height)
+//     }
+// }
+// let barrier
+// let barriers = []
+// for (i = 1; i = 4; i++){
+//     let x = (i * 20) + 70
+//     barrier = new Barrier(x, 110, 20, 5)
+//     barriers.push(barrier)
+// }
+
+//function for displaying and ending the game upon player win
 const displayWin = () => {
     document.getElementById('winDiv').classList.remove('hidden')
 }
+//function to call when game needs to start
+// const startGame = (key) => {
+//     if (key == ' ') {
+//         document.getElementById('startDisplay').classList.add('hidden')
+//         document.getElementById('container').classList.remove('hidden')
+        
+//     }
+// }
 
-// set up gameLoop function, declaring what happens when our game is running
 let animationId
 const animate = () => {
     animationId = requestAnimationFrame(animate)
@@ -207,6 +256,7 @@ const animate = () => {
     ctx.clearRect(0, 0, game.width, game.height)
     // render our player
     player.render()
+    // barriers.forEach( (x) => x.render)
     if (alienFleet.length == 0 && player.points <= 0) {
         createFleet()
     } else if (alienFleet.length == 0 && player.points > 1) {
@@ -220,7 +270,7 @@ const animate = () => {
         }
     }
     aliensRemaining.innerText = alienFleet.length
-    // alien.move()
+    alien.move()
     missiles.forEach((missile) => {
         missile.render()
         missile.update()
@@ -231,6 +281,7 @@ const animate = () => {
 let stopGameLoop = () => {clearInterval(gameInterval)}
 // add event listener for player movement
 document.addEventListener('keydown', (event) => player.move(event.key))
+// document.addEventListener('keydown', (event) => startGame(event.key))
 // the timing function will determine how and when our game animates
 // let gameInterval = setInterval(gameLoop, 70)
 animate()
