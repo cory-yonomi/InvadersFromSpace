@@ -51,7 +51,7 @@
 const game = document.getElementById('canvas')
 //context variable
 const ctx = game.getContext('2d')
-
+let direction = true
 //define player object
 function Player(x, y, color, width, height, life) {
     this.x = x
@@ -112,30 +112,41 @@ function Alien(x, y, color, width, height, life, points) {
     }
     //move alien fleet
     this.move = function () {
-        let direction = true
+        
         if (alienFleet[0].x <= 130 - this.dx && direction) {
+            console.log('first if else:', alienFleet[0].x)
             for (i = 0; i < alienFleet.length; i++) {
+                console.log('for 1')
                 alienFleet[i].x += this.dx
             }
-        } else if (alienFleet[0].x >= 130 && direction) {
+        } else if (alienFleet[0].x == 130 && direction) {
+            console.log('second if else', alienFleet[0].x)
             for (i = 0; i < alienFleet.length; i++) {
+                console.log('for 2')
                 alienFleet[i].y += 5
                 alienFleet[i].dx += .15
                 direction = false
             }
         } else if (alienFleet[0].x >= 80 - this.dx && !direction) {
+            console.log('third else if')
             for (i = 0; i < alienFleet.length; i++) {
+                console.log('for 3')
                 alienFleet[i].x -= this.dx
             }
         } else if (alienFleet[0].x >= 80 && !direction) {
+            console.log('fourth else if')
             for (i = 0; i < alienFleet.length; i++) {
+                console.log('for 4')
                 alienFleet[i].y += 5
                 alienFleet[i].dx += .15
-                direction = false
+                direction = true
             }
         }
     }
 }
+//filter for lowest x on existing aliens
+//use that specific array item to determine when to move down specifically for the left edge
+//function should return specific item, not true
 
 //declare empty variables for alien and fleet so they're globally accesible
 let alien
@@ -214,26 +225,26 @@ const detectMissileHit = () => {
     })
 }
 
-// function Barrier(x, y, width, height) {
-//     this.x = x
-//     this.y = y
-//     this.width = width
-//     this.height = height
-//     this.color = 'lime'
-//     this.life = 3
-//     this.render = function () {
-//         ctx.beginPath()
-//         ctx.fillStyle = this.color
-//         ctx.fillRect(this.x, this.y, this.width, this.height)
-//     }
-// }
-// let barrier
-// let barriers = []
-// for (i = 1; i = 4; i++){
-//     let x = (i * 20) + 70
-//     barrier = new Barrier(x, 110, 20, 5)
-//     barriers.push(barrier)
-// }
+function Barrier(x, y, width, height) {
+    this.x = x
+    this.y = y
+    this.width = width
+    this.height = height
+    this.color = 'lime'
+    this.life = 3
+    this.render = function () {
+        ctx.beginPath()
+        ctx.fillStyle = this.color
+        ctx.fillRect(this.x, this.y, this.width, this.height)
+    }
+}
+let barrier
+let barriers = []
+for (i = 1; i < 5; i++){
+    let x = (i * 40) + 40
+    barrier = new Barrier(x, 110, 20, 5)
+    barriers.push(barrier)
+}
 
 //function for displaying and ending the game upon player win
 const displayWin = () => {
@@ -256,7 +267,9 @@ const animate = () => {
     ctx.clearRect(0, 0, game.width, game.height)
     // render our player
     player.render()
-    // barriers.forEach( (x) => x.render)
+    for (i = 0; i < barriers.length; i++){
+        barriers[i].render()
+    }
     if (alienFleet.length == 0 && player.points <= 0) {
         createFleet()
     } else if (alienFleet.length == 0 && player.points > 1) {
