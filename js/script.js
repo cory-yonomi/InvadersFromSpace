@@ -73,11 +73,11 @@ function Player(x, y, color, width, height, life) {
     this.move = function (key) {
         switch (key) {
             case (' '):
-            //     shoot
+            //shoot
                 shootMissile()
                 break
             case ('a' || 'ArrowLeft'):
-                // moves left
+                // move left
                 if (player.x > 80) { player.x -= 3 }
                 break
             // case ('s'):
@@ -117,14 +117,11 @@ function Alien(x, y, color, width, height, life, points) {
     }
     //check and set direction
     this.setDirection = function (currentX) {
-        console.log('inside setDirection')
         if (currentX > 131) {
-            console.log('inside what should be right edge')
             this.direction.right = false
             this.direction.left = true
             for (i = 0; i < alienFleet.length; i++) {
-                console.log('for 1')
-                alienFleet[i].y += 4
+                alienFleet[i].y += 3
                 alienFleet[i].dx += .05
             }
         }
@@ -132,8 +129,7 @@ function Alien(x, y, color, width, height, life, points) {
             this.direction.right = true
             this.direction.left = false
             for (i = 0; i < alienFleet.length; i++) {
-                console.log('for 1')
-                alienFleet[i].y += 4
+                alienFleet[i].y += 3
                 alienFleet[i].dx += .05
             }
         }
@@ -141,35 +137,15 @@ function Alien(x, y, color, width, height, life, points) {
     //move alien fleet
     this.move = function () {
         alien.setDirection(getLowestX())
-        console.log('getLowest:\n', getLowestX())
         if (this.direction.right) {
-            // console.log('first if else:', alienFleet[0].x)
             for (i = 0; i < alienFleet.length; i++) {
-                console.log('for 1')
                 alienFleet[i].x += this.dx
             }
         } else if (this.direction.left) {
-            console.log('second if else', alienFleet[0].x)
             for (i = 0; i < alienFleet.length; i++) {
-                console.log('for 3')
                 alienFleet[i].x -= this.dx
             }
         }
-        // } else if (alienFleet[0].x >= 80 - this.dx && !direction) {
-        //     console.log('third else if')
-        //     for (i = 0; i < alienFleet.length; i++) {
-        //         console.log('for 3')
-        //         alienFleet[i].x -= this.dx
-        //     }
-        // } else if (alienFleet[0].x >= 80 && !direction) {
-        //     console.log('fourth else if')
-        //     for (i = 0; i < alienFleet.length; i++) {
-        //         console.log('for 4')
-        //         alienFleet[i].y += 5
-        //         alienFleet[i].dx += .15
-        //         direction = true
-        //     }
-        // }
     }
 }
 //filter for lowest x on existing aliens
