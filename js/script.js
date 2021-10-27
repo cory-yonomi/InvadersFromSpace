@@ -74,7 +74,7 @@ function Player(x, y, color, width, height, life) {
         switch (key) {
             case (' '):
             //shoot
-                shootMissile()
+                playerShoot()
                 break
             case ('a' || 'ArrowLeft'):
                 // move left
@@ -116,8 +116,8 @@ function Alien(x, y, color, width, height, life, points) {
         ctx.fill()
     }
     //check and set direction
-    this.setDirection = function (currentX) {
-        if (currentX > 131) {
+    this.setDirection = function (low, high) {
+        if (high > 225) {
             this.direction.right = false
             this.direction.left = true
             for (i = 0; i < alienFleet.length; i++) {
@@ -125,7 +125,7 @@ function Alien(x, y, color, width, height, life, points) {
                 alienFleet[i].dx += .05
             }
         }
-        if (currentX < 80) {
+        if (low < 80) {
             this.direction.right = true
             this.direction.left = false
             for (i = 0; i < alienFleet.length; i++) {
@@ -136,7 +136,7 @@ function Alien(x, y, color, width, height, life, points) {
     }
     //move alien fleet
     this.move = function () {
-        alien.setDirection(getLowestX())
+        alien.setDirection(getLowestX(), getHighest())
         if (this.direction.right) {
             for (i = 0; i < alienFleet.length; i++) {
                 alienFleet[i].x += this.dx
@@ -157,6 +157,16 @@ const getLowestX = () => {
         }
     }
     return currentLowest
+}
+
+const getHighest = () => {
+    let currentHighest = 0
+    for (i = 0; i < alienFleet.length; i++){
+        if (alienFleet[i].x > currentHighest) {
+            currentHighest = alienFleet[i].x
+        }
+    }
+    return currentHighest
 }
 //use that specific array item to determine when to move down specifically for the left edge
 //function should return specific item, not true
@@ -182,13 +192,13 @@ const createFleet = () => {
 }
 
 //define missile object
-function Missile(x, y, width, height) {
+function Missile(x, y, width, height, dy) {
     this.x = x
     this.y = y
     this.color = 'white'
     this.width = width
     this.height = height
-
+    this.dy = dy
     this.render = function () {
         ctx.beginPath();
         ctx.arc(this.x, this.y, 1, 0, 2 * Math.PI);
@@ -197,15 +207,15 @@ function Missile(x, y, width, height) {
     }
 
     this.update = function () {
-        this.y = this.y - 3
+        this.y = this.y + this.dy
     }
 }
 //make individual missiles and every one on screen accessible globally
 let missile
 let missiles = []
 //create a missile and push it to the array
-const shootMissile = () => {
-    missile = new Missile(player.x + 4.5, player.y, 2, 5)
+const playerShoot = () => {
+    missile = new Missile(player.x + 4.5, player.y, 2, 5, -3)
     missiles.push(missile) 
 }
 //missile hit and edge detection logic
