@@ -51,7 +51,7 @@
 const game = document.getElementById('canvas')
 //context variable
 const ctx = game.getContext('2d')
-let direction = true
+
 //define player object
 function Player(x, y, color, width, height, life) {
     this.x = x
@@ -103,58 +103,84 @@ function Alien(x, y, color, width, height, life, points) {
     this.life = life
     this.alive = true
     this.points = points
-    this.dx = .12
+    this.dx = .10
+    this.direction = {
+        left: false,
+        right: true
+    }
+    //alien appearance
     this.render = function () {
         ctx.beginPath();
         ctx.arc(this.x, this.y, 4  , 0, 2 * Math.PI);
         ctx.fillStyle = color
         ctx.fill()
     }
+    //check and set direction
+    this.setDirection = function (currentX) {
+        console.log('inside setDirection')
+        if (currentX > 131) {
+            console.log('inside what should be right edge')
+            this.direction.right = false
+            this.direction.left = true
+        }
+        if (currentX < 80) {
+            this.direction.right = true
+            this.direction.left = false
+        }
+    }
     //move alien fleet
     this.move = function () {
-        
-        if (alienFleet[0].x <= 130 - this.dx && direction) {
-            console.log('first if else:', alienFleet[0].x)
+        alien.setDirection(getLowestX())
+        console.log('getLowest:\n', getLowestX())
+        if (this.direction.right) {
+            // console.log('first if else:', alienFleet[0].x)
             for (i = 0; i < alienFleet.length; i++) {
                 console.log('for 1')
                 alienFleet[i].x += this.dx
             }
-        } else if (alienFleet[0].x == 130 && direction) {
+        } else if (this.direction.left) {
             console.log('second if else', alienFleet[0].x)
-            for (i = 0; i < alienFleet.length; i++) {
-                console.log('for 2')
-                alienFleet[i].y += 5
-                alienFleet[i].dx += .15
-                direction = false
-            }
-        } else if (alienFleet[0].x >= 80 - this.dx && !direction) {
-            console.log('third else if')
             for (i = 0; i < alienFleet.length; i++) {
                 console.log('for 3')
                 alienFleet[i].x -= this.dx
             }
-        } else if (alienFleet[0].x >= 80 && !direction) {
-            console.log('fourth else if')
-            for (i = 0; i < alienFleet.length; i++) {
-                console.log('for 4')
-                alienFleet[i].y += 5
-                alienFleet[i].dx += .15
-                direction = true
-            }
         }
+        // } else if (alienFleet[0].x >= 80 - this.dx && !direction) {
+        //     console.log('third else if')
+        //     for (i = 0; i < alienFleet.length; i++) {
+        //         console.log('for 3')
+        //         alienFleet[i].x -= this.dx
+        //     }
+        // } else if (alienFleet[0].x >= 80 && !direction) {
+        //     console.log('fourth else if')
+        //     for (i = 0; i < alienFleet.length; i++) {
+        //         console.log('for 4')
+        //         alienFleet[i].y += 5
+        //         alienFleet[i].dx += .15
+        //         direction = true
+        //     }
+        // }
     }
 }
 //filter for lowest x on existing aliens
+const getLowestX = () => {
+    let currentLowest = alienFleet[0].x
+    for (i = 0; i < alienFleet.length; i++){
+        if (alienFleet[i].x < currentLowest) {
+            currentLowest = alienFleet[i].x
+        }
+    }
+    return currentLowest
+}
 //use that specific array item to determine when to move down specifically for the left edge
 //function should return specific item, not true
-
 //declare empty variables for alien and fleet so they're globally accesible
 let alien
 let alienFleet = []
 //make alien counter accesible
 const aliensRemaining = document.getElementById('aliensRemaining')
 //function for creating a row of aliens
-const createAlienSquad = (y, color, life, points) => {
+const createAlienSquad = (y, color, life, points, fleetPosition) => {
     for (i = 1; i < 11; i++) {
         let x = (i * 10) + 70
         alien = new Alien(x, y, color, 9, 7, life, points)
@@ -168,6 +194,7 @@ const createFleet = () => {
     createAlienSquad(15, 'yellow', 2, 25)
     createAlienSquad(5, 'magenta', 3, 50)
 }
+
 //define missile object
 function Missile(x, y, width, height) {
     this.x = x
@@ -238,6 +265,7 @@ function Barrier(x, y, width, height) {
         ctx.fillRect(this.x, this.y, this.width, this.height)
     }
 }
+
 let barrier
 let barriers = []
 for (i = 1; i < 5; i++){
@@ -279,6 +307,7 @@ const animate = () => {
         cancelAnimationFrame(animationId)
     } else {
         for (i = 0; i < alienFleet.length; i++){
+            
             alienFleet[i].render()
         }
     }
