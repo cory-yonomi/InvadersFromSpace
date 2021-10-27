@@ -122,10 +122,20 @@ function Alien(x, y, color, width, height, life, points) {
             console.log('inside what should be right edge')
             this.direction.right = false
             this.direction.left = true
+            for (i = 0; i < alienFleet.length; i++) {
+                console.log('for 1')
+                alienFleet[i].y += 4
+                alienFleet[i].dx += .05
+            }
         }
         if (currentX < 80) {
             this.direction.right = true
             this.direction.left = false
+            for (i = 0; i < alienFleet.length; i++) {
+                console.log('for 1')
+                alienFleet[i].y += 4
+                alienFleet[i].dx += .05
+            }
         }
     }
     //move alien fleet
