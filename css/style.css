@@ -84,7 +84,8 @@ html,body {
 
   #winDiv {
       padding: 20px;
-      position: absolute;
+      position: fixed;
+      z-index: 4;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);

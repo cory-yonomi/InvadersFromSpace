@@ -150,7 +150,7 @@ function Alien(x, y, color, width, height, life, points) {
     //fire a missile
     this.shoot = function () {
         let randomAlien = Math.floor(Math.random()*alienFleet.length)
-        shootMissile(alienFleet[randomAlien])
+        setInterval(shootMissile(alienFleet[randomAlien]), 2000)
     }
 }
 //filter for lowest x on existing aliens
@@ -234,8 +234,9 @@ const shootMissile = (from) => {
 //missile hit and edge detection logic
 const detectMissileHit = () => {
     //identify which alien is hit
-    if (missile.from == player) {
-        missiles.forEach((missile, index) => {
+    
+    missiles.forEach((missile, index) => {
+        if (missile.dy < 0) {
             alienFleet.forEach((alien, fleetIndex) => {
                 //missile hits
                 if (
@@ -257,8 +258,8 @@ const detectMissileHit = () => {
                     missiles.splice(index, 1)
                 }
             })
-        })
-    }
+        }
+    })
 }
 
 function Barrier(x, y, width, height) {
@@ -331,7 +332,10 @@ const animate = () => {
 let stopGameLoop = () => {clearInterval(gameInterval)}
 // add event listener for player movement
 document.addEventListener('keydown', (event) => player.move(event.key))
-// document.addEventListener('keydown', (event) => startGame(event.key))
+// document.addEventListener('keyup', (event) => shootMissile(event.key, player))
+startButton.addEventListener('click', () => {
+    alien.shoot
+})
 // the timing function will determine how and when our game animates
 // let gameInterval = setInterval(gameLoop, 70)
 animate()
