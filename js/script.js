@@ -74,9 +74,9 @@ function Player(x, y, color, width, height, life) {
         switch (key) {
             case (' '):
             //shoot
-                playerShoot()
+                shootMissile(player)
                 break
-            case ('a' || 'ArrowLeft'):
+            case ('a'):
                 // move left
                 if (player.x > 80) { player.x -= 3 }
                 break
@@ -84,7 +84,7 @@ function Player(x, y, color, width, height, life) {
             //     move down
             //     useSpecial()
             //     break
-            case ('d' || 'ArrowRight'):
+            case ('d'):
                 // move right
                 if (player.x < 215){ player.x += 3 } 
                 break
@@ -147,6 +147,11 @@ function Alien(x, y, color, width, height, life, points) {
             }
         }
     }
+    //fire a missile
+    this.shoot = function () {
+        let randomAlien = Math.floor(Math.random()*alienFleet.length)
+        shootMissile(alienFleet[randomAlien])
+    }
 }
 //filter for lowest x on existing aliens
 const getLowestX = () => {
@@ -160,7 +165,7 @@ const getLowestX = () => {
 }
 
 const getHighest = () => {
-    let currentHighest = 0
+    let currentHighest = 0   
     for (i = 0; i < alienFleet.length; i++){
         if (alienFleet[i].x > currentHighest) {
             currentHighest = alienFleet[i].x
@@ -168,9 +173,11 @@ const getHighest = () => {
     }
     return currentHighest
 }
-//use that specific array item to determine when to move down specifically for the left edge
-//function should return specific item, not true
-//declare empty variables for alien and fleet so they're globally accesible
+
+// const detectAlienHit = () => {
+
+// }
+
 let alien
 let alienFleet = []
 //make alien counter accesible
@@ -192,13 +199,14 @@ const createFleet = () => {
 }
 
 //define missile object
-function Missile(x, y, width, height, dy) {
+function Missile(x, y, width, height, dy, from) {
     this.x = x
     this.y = y
     this.color = 'white'
     this.width = width
     this.height = height
     this.dy = dy
+    this.from = ''
     this.render = function () {
         ctx.beginPath();
         ctx.arc(this.x, this.y, 1, 0, 2 * Math.PI);
@@ -214,38 +222,43 @@ function Missile(x, y, width, height, dy) {
 let missile
 let missiles = []
 //create a missile and push it to the array
-const playerShoot = () => {
-    missile = new Missile(player.x + 4.5, player.y, 2, 5, -3)
-    missiles.push(missile) 
+const shootMissile = (from) => {
+    if (from === player) {
+        missile = new Missile(from.x + 4.5, from.y, 2, 5, -3, from)
+        missiles.push(missile)
+    } else {
+        missile = new Missile(from.x, from.y, 2, 5, .75, from)
+        missiles.push(missile)
+    }
 }
 //missile hit and edge detection logic
 const detectMissileHit = () => {
     //identify which alien is hit
-    missiles.forEach((missile, index) => {
-        alienFleet.forEach((alien, fleetIndex) => {
-            //missile hits
-            if (
-                missile.x < alien.x + alien.width &&
-                missile.x + missile.width > alien.x &&
-                missile.y < alien.y + alien.height &&
-                missile.y + missile.height > alien.y
-            ) {
-                missiles.splice(index, 1)
-                alien.life = alien.life - 1
-                console.log('alien life:\n', alien.life)
-                //check for kill and points
-                if (alien.life === 0) {
-                    alienFleet.splice(fleetIndex, 1)
-                    player.points = player.points + alien.points
-                    console.log('player points:\n', player.points)
-                    pointTotal.innerText = String(player.points).padStart(4, '0')
+    if (missile.from == player) {
+        missiles.forEach((missile, index) => {
+            alienFleet.forEach((alien, fleetIndex) => {
+                //missile hits
+                if (
+                    missile.x < alien.x + alien.width &&
+                    missile.x + missile.width > alien.x &&
+                    missile.y < alien.y + alien.height &&
+                    missile.y + missile.height > alien.y
+                ) {
+                    missiles.splice(index, 1)
+                    alien.life = alien.life - 1
+                    //check for kill and points
+                    if (alien.life === 0) {
+                        alienFleet.splice(fleetIndex, 1)
+                        player.points = player.points + alien.points
+                        pointTotal.innerText = String(player.points).padStart(4, '0')
+                    }
+                    //missile edge detection
+                } else if (missile.y <= 0) {
+                    missiles.splice(index, 1)
                 }
-            //missile edge detection
-            } else if (missile.y <= 0) {
-                missiles.splice(index, 1)
-            }
+            })
         })
-    })
+    }
 }
 
 function Barrier(x, y, width, height) {
@@ -298,15 +311,14 @@ const animate = () => {
         createFleet()
     } else if (alienFleet.length == 0 && player.points > 1) {
         player.win = true
-        console.log('player win:\n', player.win)
         displayWin()
         cancelAnimationFrame(animationId)
     } else {
-        for (i = 0; i < alienFleet.length; i++){
-            
+        for (i = 0; i < alienFleet.length; i++){ 
             alienFleet[i].render()
         }
     }
+    setInterval(alien.shoot(), 5000)
     aliensRemaining.innerText = alienFleet.length
     alien.move()
     missiles.forEach((missile) => {
