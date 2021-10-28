@@ -92,7 +92,7 @@ function Player(x, y, color, width, height, life) {
     }
 }
 //create player
-let player = new Player(150, 140, 'cyan', 10, 5)
+let player = new Player(150, 140, 'cyan', 10, 5, 3)
 //define alien object
 function Alien(x, y, color, width, height, life, points) {
     this.x = x
@@ -150,7 +150,7 @@ function Alien(x, y, color, width, height, life, points) {
     //fire a missile
     this.shoot = function () {
         let randomAlien = Math.floor(Math.random()*alienFleet.length)
-        setInterval(shootMissile(alienFleet[randomAlien]), 2000)
+        setInterval(shootMissile(alienFleet[randomAlien]), 2000) 
     }
 }
 //filter for lowest x on existing aliens
@@ -183,7 +183,7 @@ let alienFleet = []
 //make alien counter accesible
 const aliensRemaining = document.getElementById('aliensRemaining')
 //function for creating a row of aliens
-const createAlienSquad = (y, color, life, points, fleetPosition) => {
+const createAlienSquad = (y, color, life, points) => {
     for (i = 1; i < 11; i++) {
         let x = (i * 10) + 70
         alien = new Alien(x, y, color, 9, 7, life, points)
@@ -319,23 +319,40 @@ const animate = () => {
             alienFleet[i].render()
         }
     }
-    setInterval(alien.shoot(), 5000)
     aliensRemaining.innerText = alienFleet.length
     alien.move()
     missiles.forEach((missile) => {
         missile.render()
         missile.update()
     })
+    
     detectMissileHit()
+}
+
+const init = () => {
+    container.classList.remove('hidden')
+    startDisplay.classList.add('hidden')
+    alienFleet = []
+    missiles = []
+    player.points = 0
 }
 // we also need to declare a function that will stop our animation loop
 let stopGameLoop = () => {clearInterval(gameInterval)}
 // add event listener for player movement
-document.addEventListener('keydown', (event) => player.move(event.key))
+document.addEventListener('keydown', (event) => {
+    event.preventDefault()
+    player.move(event.key)
+})
 // document.addEventListener('keyup', (event) => shootMissile(event.key, player))
 startButton.addEventListener('click', () => {
-    alien.shoot
+    init()
+    animate()
+    alien.shoot()
 })
-// the timing function will determine how and when our game animates
-// let gameInterval = setInterval(gameLoop, 70)
-animate()
+restartButton.addEventListener('click', () => {
+    winDiv.classList.add('hidden')
+    init()
+    animate()
+    alien.shoot()
+})
+
