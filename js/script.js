@@ -51,7 +51,7 @@
 const game = document.getElementById('canvas')
 //context variable
 const ctx = game.getContext('2d')
-
+let counter = 0
 //define player object
 function Player(x, y, color, width, height, life) {
     this.x = x
@@ -149,8 +149,15 @@ function Alien(x, y, color, width, height, life, points) {
     }
     //fire a missile
     this.shoot = function () {
-        let randomAlien = Math.floor(Math.random()*alienFleet.length)
-        setInterval(shootMissile(alienFleet[randomAlien]), 2000) 
+        let randomAlien = Math.floor(Math.random() * alienFleet.length)
+        if (counter % 250 === 0) {
+            console.log(counter)
+            shootMissile(alienFleet[randomAlien])
+        }
+        if (counter % 302 === 0) {
+            console.log(counter)
+            shootMissile(alienFleet[randomAlien])
+        }
     }
 }
 //filter for lowest x on existing aliens
@@ -234,7 +241,6 @@ const shootMissile = (from) => {
 //missile hit and edge detection logic
 const detectMissileHit = () => {
     //identify which alien is hit
-    
     missiles.forEach((missile, index) => {
         if (missile.dy < 0) {
             alienFleet.forEach((alien, fleetIndex) => {
@@ -258,6 +264,27 @@ const detectMissileHit = () => {
                     missiles.splice(index, 1)
                 }
             })
+        } else if (missile.dy > 0) {
+            barriers.forEach((barrier, barrierIndex) => {
+                //missile hits
+                if (
+                    missile.x < barrier.x + barrier.width &&
+                    missile.x + missile.width > barrier.x &&
+                    missile.y < barrier.y + barrier.height &&
+                    missile.y + missile.height > barrier.y
+                ) {
+                    missiles.splice(index, 1)
+                    barrier.life = barrier.life - 1
+                    barrier.x += 1
+                    barrier.width -= 2
+                    console.log(barrier.life)
+                    //check for kill and points
+                    if (barrier.life === 0) {
+                        barriers.splice(barrierIndex, 1)
+                    }
+                    
+                }
+            })
         }
     })
 }
@@ -268,7 +295,7 @@ function Barrier(x, y, width, height) {
     this.width = width
     this.height = height
     this.color = 'lime'
-    this.life = 3
+    this.life = 8
     this.render = function () {
         ctx.beginPath()
         ctx.fillStyle = this.color
@@ -278,11 +305,7 @@ function Barrier(x, y, width, height) {
 
 let barrier
 let barriers = []
-for (i = 1; i < 5; i++){
-    let x = (i * 40) + 40
-    barrier = new Barrier(x, 110, 20, 5)
-    barriers.push(barrier)
-}
+
 
 //function for displaying and ending the game upon player win
 const displayWin = () => {
@@ -299,11 +322,17 @@ const displayWin = () => {
 
 let animationId
 const animate = () => {
+    
     animationId = requestAnimationFrame(animate)
     // clear the canvas
     ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
     ctx.clearRect(0, 0, game.width, game.height)
     // render our player
+    for (i = 1; i < 5; i++){
+        let x = (i * 40) + 40
+        barrier = new Barrier(x, 110, 16, 5)
+        barriers.push(barrier)
+    }
     player.render()
     for (i = 0; i < barriers.length; i++){
         barriers[i].render()
@@ -325,8 +354,9 @@ const animate = () => {
         missile.render()
         missile.update()
     })
-    
+    alien.shoot()
     detectMissileHit()
+    counter++
 }
 
 const init = () => {
@@ -334,7 +364,9 @@ const init = () => {
     startDisplay.classList.add('hidden')
     alienFleet = []
     missiles = []
+    barriers = []
     player.points = 0
+    counter = 0
 }
 // we also need to declare a function that will stop our animation loop
 let stopGameLoop = () => {clearInterval(gameInterval)}
@@ -344,15 +376,13 @@ document.addEventListener('keydown', (event) => {
     player.move(event.key)
 })
 // document.addEventListener('keyup', (event) => shootMissile(event.key, player))
-startButton.addEventListener('click', () => {
-    init()
-    animate()
-    alien.shoot()
+document.addEventListener('click', (event) => {
+    if (event.target === document.getElementById('restartButton')) {
+        winDiv.classList.add('hidden')
+        init()
+        animate()
+    } else if (event.target === document.getElementById('startButton')) {
+        init()
+        animate()
+    }   
 })
-restartButton.addEventListener('click', () => {
-    winDiv.classList.add('hidden')
-    init()
-    animate()
-    alien.shoot()
-})
-
