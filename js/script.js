@@ -160,30 +160,6 @@ function Alien(x, y, color, width, height, life, points) {
         }
     }
 }
-//filter for lowest x on existing aliens
-const getLowestX = () => {
-    let currentLowest = alienFleet[0].x
-    for (i = 0; i < alienFleet.length; i++){
-        if (alienFleet[i].x < currentLowest) {
-            currentLowest = alienFleet[i].x
-        }
-    }
-    return currentLowest
-}
-
-const getHighest = () => {
-    let currentHighest = 0   
-    for (i = 0; i < alienFleet.length; i++){
-        if (alienFleet[i].x > currentHighest) {
-            currentHighest = alienFleet[i].x
-        }
-    }
-    return currentHighest
-}
-
-// const detectAlienHit = () => {
-
-// }
 
 let alien
 let alienFleet = []
@@ -264,7 +240,6 @@ const detectMissileHit = () => {
                     missiles.splice(index, 1)
                 }
             })
-        } else if (missile.dy > 0) {
             barriers.forEach((barrier, barrierIndex) => {
                 //missile hits
                 if (
@@ -285,6 +260,35 @@ const detectMissileHit = () => {
                     
                 }
             })
+        } else if (missile.dy > 0) {
+            barriers.forEach((barrier, barrierIndex) => {
+                //missile hits
+                if (
+                    missile.x < barrier.x + barrier.width &&
+                    missile.x + missile.width > barrier.x &&
+                    missile.y < barrier.y + barrier.height &&
+                    missile.y + missile.height > barrier.y
+                ) {
+                    missiles.splice(index, 1)
+                    barrier.life = barrier.life - 1
+                    barrier.x += 1
+                    barrier.width -= 2
+                    console.log(barrier.life)
+                    //check for kill and points
+                    if (barrier.life === 0) {
+                        barriers.splice(barrierIndex, 1)
+                    }    
+                }
+            })
+            if (
+                missile.x < player.x + player.width &&
+                missile.x + missile.width > player.x &&
+                missile.y < player.y + player.height &&
+                missile.y + missile.height > player.y
+            ) {
+                missiles.splice(index, 1)
+                player.life -= 1
+            }
         }
     })
 }
@@ -306,57 +310,21 @@ function Barrier(x, y, width, height) {
 let barrier
 let barriers = []
 
+const displayLoss = () => {
+    cancelAnimationFrame(animationId)
+    gameEnd.classList.remove('hidden')
+    gameStatus.innerText = 'Defeat!'
+    message.innerText = 'The Omicronians have conquered Earth!'
+    totalPoints.innerText = player.points
+}
 
 //function for displaying and ending the game upon player win
 const displayWin = () => {
-    document.getElementById('winDiv').classList.remove('hidden')
-}
-//function to call when game needs to start
-// const startGame = (key) => {
-//     if (key == ' ') {
-//         document.getElementById('startDisplay').classList.add('hidden')
-//         document.getElementById('container').classList.remove('hidden')
-        
-//     }
-// }
-
-let animationId
-const animate = () => {
-    
-    animationId = requestAnimationFrame(animate)
-    // clear the canvas
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
-    ctx.clearRect(0, 0, game.width, game.height)
-    // render our player
-    for (i = 1; i < 5; i++){
-        let x = (i * 40) + 40
-        barrier = new Barrier(x, 110, 16, 5)
-        barriers.push(barrier)
-    }
-    player.render()
-    for (i = 0; i < barriers.length; i++){
-        barriers[i].render()
-    }
-    if (alienFleet.length == 0 && player.points <= 0) {
-        createFleet()
-    } else if (alienFleet.length == 0 && player.points > 1) {
-        player.win = true
-        displayWin()
-        cancelAnimationFrame(animationId)
-    } else {
-        for (i = 0; i < alienFleet.length; i++){ 
-            alienFleet[i].render()
-        }
-    }
-    aliensRemaining.innerText = alienFleet.length
-    alien.move()
-    missiles.forEach((missile) => {
-        missile.render()
-        missile.update()
-    })
-    alien.shoot()
-    detectMissileHit()
-    counter++
+    cancelAnimationFrame(animationId)
+    gameEnd.classList.remove('hidden')
+    gameStatus.innerText = 'Victory!'
+    message.innerText = 'You have saved the planet!'
+    totalPoints.innerText = player.points
 }
 
 const init = () => {
@@ -366,10 +334,94 @@ const init = () => {
     missiles = []
     barriers = []
     player.points = 0
+    player.win = false
+    player.life = 3
     counter = 0
 }
-// we also need to declare a function that will stop our animation loop
-let stopGameLoop = () => {clearInterval(gameInterval)}
+
+const gameLoop = () => {
+    
+    for (i = 1; i < 5; i++){
+        let x = (i * 40) + 40
+        barrier = new Barrier(x, 125, 16, 5)
+        barriers.push(barrier)
+    }
+    if (alienFleet.length == 0 && player.points <= 0) {
+        createFleet()
+    }
+    
+    animate()
+    
+}
+
+const checkWin = () => {
+    console.log('check win')
+     if (player.life === 0) {
+        cancelAnimationFrame(animationId)
+        player.win = true
+        displayLoss()
+    } else if (alienFleet.length == 0 && player.points > 1) {
+        cancelAnimationFrame(animationId)
+        player.win = true
+        displayWin()
+    } else if (alienFleet[0].y >= 125) {
+        cancelAnimationFrame(animationId)
+        player.win = true
+        displayLoss()
+    }
+}
+
+//filter for lowest x on existing aliens
+const getLowestX = () => {
+    let currentLowest = alienFleet[0].x
+    for (i = 0; i < alienFleet.length; i++){
+        if (alienFleet[i].x < currentLowest) {
+            currentLowest = alienFleet[i].x
+        }
+    }
+    return currentLowest
+}
+
+const getHighest = () => {
+    let currentHighest = 0   
+    for (i = 0; i < alienFleet.length; i++){
+        if (alienFleet[i].x > currentHighest) {
+            currentHighest = alienFleet[i].x
+        }
+    }
+    return currentHighest
+}
+
+let animationId
+const animate = () => {
+    animationId = requestAnimationFrame(animate)
+    // clear the canvas
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
+    ctx.clearRect(0, 0, game.width, game.height)
+    // render our player
+    checkWin()
+    detectMissileHit()
+    
+    if (!player.win) {
+        player.render()
+        for (i = 0; i < barriers.length; i++){
+        barriers[i].render()
+        }
+        for (i = 0; i < alienFleet.length; i++){ 
+        alienFleet[i].render()
+        }
+        alien.move()
+        missiles.forEach((missile) => {
+            missile.render()
+            missile.update()   
+        })
+        alien.shoot()
+        
+    }
+    
+    aliensRemaining.innerText = alienFleet.length
+    counter++
+}
 // add event listener for player movement
 document.addEventListener('keydown', (event) => {
     event.preventDefault()
@@ -378,11 +430,11 @@ document.addEventListener('keydown', (event) => {
 // document.addEventListener('keyup', (event) => shootMissile(event.key, player))
 document.addEventListener('click', (event) => {
     if (event.target === document.getElementById('restartButton')) {
-        winDiv.classList.add('hidden')
+        gameEnd.classList.add('hidden')
         init()
-        animate()
+        gameLoop()
     } else if (event.target === document.getElementById('startButton')) {
         init()
-        animate()
+        gameLoop()
     }   
 })

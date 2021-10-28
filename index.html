@@ -20,9 +20,10 @@
         <aside id="btm-center"><h2>A:Left D:Right SPACEBAR:Shoot</h2></aside>
         <aside id="btm-right"><h2>Aliens:<br><span id="aliensRemaining"></span></h2></aside>
       </div>
-      <div id="winDiv" class="hidden">
-        <h2>Victory!</h2>
-        <h3>You defeated the invaders!</h3>
+      <div id="gameEnd" class="hidden">
+        <h2 id="gameStatus"></h2>
+        <h2 id="totalPoints"></h2>
+        <h3 id="message"></h3>
         <button id="restartButton">Play Again</button>
     </div>
     <div id="startDisplay">
@@ -30,12 +31,6 @@
         <h2>The Omicronians are coming to take over Earth! Destroy them and save humanity!</h2>
         <button id="startButton">Start Game</button>
         <p>A: Left | D: Right | SPACE: Shoot</p>
-    </div>
-    <div id="defeatDisplay" class="hidden">
-        <img src="" />
-        <h2>Defeat!</h2>
-        <h3>The Omicronians have conquered Earth!</h3>
-        <p id="totalPoints"></p>
     </div>
     <script src="js/script.js"></script>
 </body>
