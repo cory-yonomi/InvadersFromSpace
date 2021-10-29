@@ -68,6 +68,10 @@ html,body {
       font-size: 36px;
   }
   
+  #title img {
+    height: 120px;
+  }
+
   main {
     grid-area: game;
     position: relative;

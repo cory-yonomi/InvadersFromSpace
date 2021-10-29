@@ -1,52 +1,3 @@
-//define player class
-    //life = 3
-    //size
-    //shape?
-    //collision method?
-//define alien class
-    //life =  1, 2, 3
-    //points = 20, 30, 50
-    //size
-    //shape
-    //collision method
-//define barrier class
-    //life = 4
-    //size
-//define projectile class
-    //size
-    //collision
-    //movement method?
-//define player movement function
-//define alien movement function
-//define collision class
-//define game loop
-    //game starts
-    //countdown
-    //aliens begin moving left to right
-        //they move down when they reach the edge of their threshold
-        //every time they move down, speed increases
-    //at random intervals random aliens launch projectiles straight down
-        //if barrier is hit, one point is removed
-            //barrier width shrinks
-        //if player is hit
-    //player moves
-    //player shoots
-        //if an alien is struck, one life is removed
-        //if alien's life reaches 0, it dies
-            //aliens' life totals in array?
-        //if an alien dies, appropriate points are rewarded
-
-        // we're setting up height and width variables BASED ON computed style
-// that means we're using setAttribute in conjunction with getComputedStyle
-// game.setAttribute('width', getComputedStyle(game)['width'])
-// game.setAttribute('height', getComputedStyle(game)['height'])
-// check out the varying attributes width and height!
-// console.log('current game width', game.width)
-// console.log('current game height', game.height)
-
-// now we need to get the game's context so we can add to it, draw on it, create animations etc
-// we do this with the built in canvas method, getContext
-
 //make canvas accessible
 const game = document.getElementById('canvas')
 //context variable
@@ -103,7 +54,7 @@ function Alien(x, y, color, width, height, life, points) {
     this.life = life
     this.alive = true
     this.points = points
-    this.dx = .10
+    this.dx = .15
     this.direction = {
         left: false,
         right: true
@@ -120,16 +71,18 @@ function Alien(x, y, color, width, height, life, points) {
         if (high > 225) {
             this.direction.right = false
             this.direction.left = true
+            console.log('should speed up')
             for (i = 0; i < alienFleet.length; i++) {
-                alienFleet[i].y += 3
+                alienFleet[i].y += 4
                 alienFleet[i].dx += .05
             }
         }
         if (low < 80) {
+            console.log('should speed up')
             this.direction.right = true
             this.direction.left = false
             for (i = 0; i < alienFleet.length; i++) {
-                alienFleet[i].y += 3
+                alienFleet[i].y += 4
                 alienFleet[i].dx += .05
             }
         }
@@ -336,11 +289,11 @@ const init = () => {
     player.points = 0
     player.win = false
     player.life = 3
+    player.x = 150
     counter = 0
 }
 
 const gameLoop = () => {
-    
     for (i = 1; i < 5; i++){
         let x = (i * 40) + 40
         barrier = new Barrier(x, 125, 16, 5)
@@ -349,9 +302,7 @@ const gameLoop = () => {
     if (alienFleet.length == 0 && player.points <= 0) {
         createFleet()
     }
-    
     animate()
-    
 }
 
 const checkWin = () => {
@@ -401,7 +352,6 @@ const animate = () => {
     // render our player
     checkWin()
     detectMissileHit()
-    
     if (!player.win) {
         player.render()
         for (i = 0; i < barriers.length; i++){
@@ -415,10 +365,8 @@ const animate = () => {
             missile.render()
             missile.update()   
         })
-        alien.shoot()
-        
+        alien.shoot()   
     }
-    
     aliensRemaining.innerText = alienFleet.length
     counter++
 }
