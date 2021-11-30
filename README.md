@@ -5,7 +5,7 @@ OMICRON - Lrr & Ndnd are coming to take over Earth!
 A Space Invaders styled game in which one player battles aliens invaders and attempts to destroy them before they land and destroy the planet! The player will have barriers to hide behind and the ability to move left to right, as the aliens move back and forth and drop closer to the planet. Score will be kept, each alien hit providing points with more awarded for aliens higher up in the formation.
 
 # Live Site
-https://ornery-mouse.github.io/SEI-Project-1/
+https://ornery-mouse.github.io/Omicron/
 
 ## Tech Stack
 HTML Canvas - JS - CSS
